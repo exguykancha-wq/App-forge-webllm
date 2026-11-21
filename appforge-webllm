@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#6d5dfc">
+<title>AppForge Private</title>
+<style>
+:root{--bg:#f6f5fb;--card:#fff;--tx:#17151f;--mu:#6b6880;--ac:#6d5dfc;--ac2:#a45cff;--bd:#e4e1f0;--er:#d6336c;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#121018;--card:#1c1926;--tx:#f1eff8;--mu:#9a96b0;--bd:#2c2839}}
+:root[data-theme="dark"]{--bg:#121018;--card:#1c1926;--tx:#f1eff8;--mu:#9a96b0;--bd:#2c2839}
+*{box-sizing:border-box}html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--tx);font:16px/1.45 -apple-system,system-ui,"Segoe UI",Roboto,sans-serif;min-height:100vh}
+.wrap{max-width:720px;margin:0 auto;padding:16px}
+h1{margin:4px 0 2px;font-size:28px;background:linear-gradient(90deg,var(--ac),var(--ac2));-webkit-background-clip:text;background-clip:text;color:transparent}
+.sub{color:var(--mu);margin:0 0 16px}
+.card{background:var(--card);border:1px solid var(--bd);border-radius:18px;padding:14px}
+textarea{width:100%;min-height:110px;border:0;outline:0;resize:vertical;background:transparent;color:var(--tx);font:inherit}
+.row{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px;align-items:center}
+button{font:inherit;border:1px solid var(--bd);background:var(--card);color:var(--tx);border-radius:12px;padding:10px 14px;cursor:pointer}
+button.p{background:linear-gradient(90deg,var(--ac),var(--ac2));color:#fff;border:0;font-weight:600;flex:1;padding:12px}
+button:disabled{opacity:.55}
+.chips{display:flex;gap:8px;overflow-x:auto;margin:12px 0;padding-bottom:4px}
+.chip{white-space:nowrap;font-size:14px;padding:8px 12px;border-radius:99px;color:var(--mu)}
+#st{margin:12px 0;color:var(--mu);font-size:14px;min-height:20px}
+#st.err{color:var(--er)}
+.bar{height:4px;background:var(--bd);border-radius:4px;overflow:hidden;margin-top:6px;display:none}
+.bar i{display:block;height:100%;width:30%;background:var(--ac);animation:s 1.1s infinite ease-in-out}
+@keyframes s{0%{margin-left:-30%}100%{margin-left:100%}}
+#out{display:none;margin-top:12px}
+.tabs{display:flex;gap:6px;margin-bottom:8px}
+.tabs button.on{border-color:var(--ac);color:var(--ac)}
+iframe{width:100%;height:68vh;border:1px solid var(--bd);border-radius:14px;background:#fff}
+pre{margin:0;max-height:68vh;overflow:auto;font-size:12px;white-space:pre-wrap;word-break:break-all}
+h3{margin:22px 0 8px;font-size:15px;color:var(--mu)}
+.h{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:10px 0;border-top:1px solid var(--bd)}
+.h span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.tip{font-size:13px;color:var(--mu);margin-top:20px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>AppForge</h1>
+  <p class="sub">Describe an app. Get a working one.</p>
+  <div class="card">
+    <textarea id="p" placeholder="e.g. A habit tracker with streaks, a weekly chart and dark mode"></textarea>
+    <select id="m" style="width:100%;margin-top:8px;padding:10px;border-radius:10px;border:1px solid var(--bd);background:var(--card);color:var(--tx);font:inherit"><option value="Llama-3.2-1B-Instruct-q4f16_1-MLC">Small &amp; fast: Llama 3.2 1B (~0.9GB)</option><option value="gemma-2-2b-it-q4f16_1-MLC">Balanced: Gemma 2 2B (~1.9GB)</option><option value="Llama-3.2-3B-Instruct-q4f16_1-MLC">Best quality: Llama 3.2 3B (~2.3GB)</option></select><input id="u" type="hidden" value="x"><div class="row"><button class="p" id="go">Build my app</button></div>
+  </div>
+  <details class="card" style="margin-top:12px"><summary style="cursor:pointer;font-weight:600">⚙️ Rules &amp; limits (සැකසුම්)</summary>
+<p class="sub" style="margin:10px 0 6px">AI instructions (rules):</p>
+<textarea id="sy" style="min-height:180px;border:1px solid var(--bd);border-radius:10px;padding:8px;font-size:13px"></textarea>
+<div class="row"><label>Max output tokens<br><input id="mt" type="number" min="500" max="30000" style="width:110px"></label>
+<label>Creativity (0–1)<br><input id="tp" type="number" min="0" max="1" step="0.1" style="width:90px"></label>
+<label>Auto-fix rounds (0–5)<br><input id="fx" type="number" min="0" max="5" style="width:90px"></label></div>
+<div class="row"><button id="rs">Reset to defaults</button></div></details>
+<div class="chips" id="chips"></div>
+  <div id="st"></div><div class="bar" id="bar"><i></i></div>
+  <div id="out">
+    <div class="tabs"><button id="tp" class="on">App</button><button id="tc">Code</button></div>
+    <iframe id="fr" sandbox="allow-scripts allow-forms allow-modals allow-popups"></iframe>
+    <div class="card" id="cd" style="display:none"><pre id="pre"></pre></div>
+    <div class="row">
+      <button id="imp">Improve it…</button>
+      <button id="dl">Save .html</button>
+      <button id="cp">Copy code</button>
+    </div>
+  </div>
+  <div id="hist"></div>
+  <p class="tip">To keep AppForge on your phone: open this page, tap Share (iPhone) or the ⋮ menu (Android), then “Add to Home Screen”.</p>
+</div>
+<script>
+const $=id=>document.getElementById(id);
+const IDEAS=["Pomodoro timer with task list","Expense splitter for friends","Snake game with high scores","Recipe scaler and shopping list","Flashcard quiz maker"];
+const SYS=`You are an autonomous senior engineer, UI/UX designer and product architect. Turn the request into ONE complete, working, mobile-first web app as a single self-contained HTML file. Never ask questions; make sensible decisions. Rules: output ONLY the raw HTML document (doctype first), no markdown fences, no commentary. Inline all CSS and JS; no external scripts, fonts, images or network calls. Include <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">. Modern polished UI with light and dark support via prefers-color-scheme, large touch targets, safe-area padding. Every button, form, tab and navigation item must really work with real logic. If a backend or accounts are implied, simulate them locally in the page. Persist data with localStorage wrapped in try/catch with an in-memory fallback (storage may be blocked). Handle empty states and invalid input. Keep it under 200 lines and as simple as possible.`;
+const DEF=SYS;let cfg={sys:SYS,mt:2500,t:0.3,fx:2};
+try{Object.assign(cfg,JSON.parse(localStorage.getItem("af_s")||"{}"))}catch(e){}
+function loadS(){$("sy").value=cfg.sys;$("mt").value=cfg.mt;$("tp").value=cfg.t;$("fx").value=cfg.fx}
+function saveS(){cfg.sys=$("sy").value||DEF;cfg.mt=+$("mt").value||2500;cfg.t=Math.max(0,Math.min(1,+$("tp").value));cfg.fx=Math.max(0,Math.min(5,+$("fx").value||0));try{localStorage.setItem("af_s",JSON.stringify(cfg))}catch(e){}}
+["sy","mt","tp","fx"].forEach(id=>$(id).oninput=saveS);
+$("rs").onclick=()=>{cfg={sys:DEF,mt:2500,t:0.3,fx:2};saveS();loadS()};
+loadS();
+let sample=null,cur="",curName="",busy=false,hist=[];
+try{hist=JSON.parse(localStorage.getItem("af_h")||"[]")}catch(e){}
+IDEAS.forEach(t=>{const b=document.createElement("button");b.className="chip";b.textContent=t;b.onclick=()=>{$("p").value=t};$("chips").appendChild(b)});
+sample=true;
+try{$("u").value=localStorage.getItem("af_u")||$("u").value;$("m").value=localStorage.getItem("af_m")||""}catch(e){}
+$("u").oninput=$("m").oninput=()=>{try{localStorage.setItem("af_u",$("u").value.trim());localStorage.setItem("af_m",$("m").value.trim())}catch(e){}};
+function status(t,err,load){$("st").textContent=t;$("st").className=err?"err":"";$("bar").style.display=load?"block":"none"}
+function clean(t){t=(t||"").replace(/^```(?:html)?\s*/i,"").replace(/```\s*$/,"").trim();const i=t.search(/<!doctype|<html/i);return i>0?t.slice(i):t}
+const HOOK=`<script>addEventListener("error",e=>parent.postMessage({afErr:(e.message||"error")+" @line "+e.lineno},"*"));addEventListener("unhandledrejection",e=>parent.postMessage({afErr:"Promise: "+(e.reason&&e.reason.message||e.reason)},"*"))<\/script>`;
+function render(h){const x=/<head[^>]*>/i.test(h)?h.replace(/<head[^>]*>/i,m=>m+HOOK):HOOK+h;$("fr").srcdoc=x;$("pre").textContent=h;$("out").style.display="block"}
+let errs=[];addEventListener("message",e=>{if(e.data&&e.data.afErr&&errs.length<5)errs.push(e.data.afErr)});
+let eng=null,engId="";
+async function gen(msgs,label){
+  const id=$("m").value;
+  if(!navigator.gpu)throw{code:"nogpu"};
+  if(!eng||engId!==id){
+    const w=await import("https://esm.run/@mlc-ai/web-llm");
+    eng=await w.CreateMLCEngine(id,{initProgressCallback:p=>status("Loading AI model: "+Math.round((p.progress||0)*100)+"% (first time only)",0,1)});engId=id;
+  }
+  status(label+"… this can take a few minutes",0,1);
+  const r=await eng.chat.completions.create({messages:msgs,max_tokens:cfg.mt,temperature:cfg.t});
+  const c=r.choices[0];
+  return {html:clean(c.message.content||""),truncated:c.finish_reason==="length"};
+}
+async function build(prompt,base){
+  if(busy||!sample||!prompt.trim())return;busy=true;$("go").disabled=true;errs=[];
+  try{
+    const user=base?`Here is the current app:\n${base}\n\nApply this change and return the full updated HTML file: ${prompt}`:`Build this app: ${prompt}`;
+    let msgs=[{role:"user",content:cfg.sys+"\n\n"+user}];
+    status("Designing and building…",0,1);
+    let g=await gen(msgs,"Building");
+    if(g.truncated){status("Output was cut off, simplifying…",0,1);g=await gen([{role:"user",content:cfg.sys+"\n\nMake it more compact (under 350 lines). "+user}],"Rebuilding")}
+    render(g.html);
+    for(let i=0;i<cfg.fx;i++){
+      status("Testing the app…",0,1);await new Promise(r=>setTimeout(r,1800));
+      if(!errs.length)break;
+      const e=errs.join("; ");errs=[];
+      status("Found a bug, fixing it…",0,1);
+      g=await gen([{role:"user",content:SYS+`\n\nThis app threw runtime errors: ${e}\nFix them and return the full corrected HTML only.\n\n${g.html}`}],"Fixing");
+      render(g.html);
+    }
+    cur=g.html;curName=prompt.slice(0,60);
+    hist=[{n:curName,h:cur,t:Date.now()},...hist.filter(x=>x.n!==curName)].slice(0,5);
+    try{localStorage.setItem("af_h",JSON.stringify(hist))}catch(e){}
+    drawHist();status("Done. Your app is ready ✓");
+    $("out").scrollIntoView({behavior:"smooth"});
+  }catch(e){
+    if(e&&e.code==="nogpu")status("මෙම බ්‍රවුසරය WebGPU සහාය නොදක්වයි. Chrome යාවත්කාලීන කරන්න. / WebGPU not supported. Update Chrome.",1);
+        else status("AI model එක පූරණය කිරීමට හෝ ධාවනයට නොහැකි විය. පළමු වරට අන්තර්ජාලය, ගබඩා ඉඩ බලන්න, කුඩා model එකක් උත්සාහ කරන්න. / Couldn’t load or run the AI model. Check internet (first load), free storage, or try a smaller model.",1);
+  }
+  busy=false;$("go").disabled=!sample;
+}
+function drawHist(){
+  const H=$("hist");H.innerHTML="";if(!hist.length)return;
+  const h=document.createElement("h3");h.textContent="Recent apps";H.appendChild(h);
+  hist.forEach(x=>{const d=document.createElement("div");d.className="h";const s=document.createElement("span");s.textContent=x.n;const b=document.createElement("button");b.textContent="Open";b.onclick=()=>{cur=x.h;curName=x.n;render(x.h);status("");$("out").scrollIntoView({behavior:"smooth"})};d.append(s,b);H.appendChild(d)});
+}
+$("go").onclick=()=>build($("p").value);
+$("imp").onclick=()=>{const c=prompt("What should change?");if(c&&cur)build(c,cur)};
+$("tp").onclick=()=>{$("fr").style.display="block";$("cd").style.display="none";$("tp").className="on";$("tc").className=""};
+$("tc").onclick=()=>{$("fr").style.display="none";$("cd").style.display="block";$("tc").className="on";$("tp").className=""};
+$("cp").onclick=async()=>{try{await navigator.clipboard.writeText(cur);status("Code copied ✓")}catch(e){status("Couldn’t copy. Use the Code tab and select all.",1)}};
+$("dl").onclick=()=>{const u=URL.createObjectURL(new Blob([cur],{type:"text/html"}));const l=document.createElement("a");l.href=u;l.download=(curName||"app").replace(/[^\w]+/g,"-").toLowerCase()+".html";l.click();status("Saved ✓")};
+drawHist();
+</script>
+</body>
+</html>
