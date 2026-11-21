@@ -26,7 +26,7 @@ button.p{background:linear-gradient(90deg,var(--ac),var(--ac2));color:#fff;borde
 button:disabled{opacity:.55}
 .chips{display:flex;gap:8px;overflow-x:auto;margin:12px 0;padding-bottom:4px}
 .chip{white-space:nowrap;font-size:14px;padding:8px 12px;border-radius:99px;color:var(--mu)}
-#st{margin:12px 0;color:var(--mu);font-size:14px;min-height:20px}
+#st{white-space:pre-wrap;margin:12px 0;color:var(--mu);font-size:14px;min-height:20px}
 #st.err{color:var(--er)}
 .bar{height:4px;background:var(--bd);border-radius:4px;overflow:hidden;margin-top:6px;display:none}
 .bar i{display:block;height:100%;width:30%;background:var(--ac);animation:s 1.1s infinite ease-in-out}
@@ -131,7 +131,7 @@ async function build(prompt,base){
     $("out").scrollIntoView({behavior:"smooth"});
   }catch(e){
     if(e&&e.code==="nogpu")status("මෙම බ්‍රවුසරය WebGPU සහාය නොදක්වයි. Chrome යාවත්කාලීන කරන්න. / WebGPU not supported. Update Chrome.",1);
-        else status("AI model එක පූරණය කිරීමට හෝ ධාවනයට නොහැකි විය. පළමු වරට අන්තර්ජාලය, ගබඩා ඉඩ බලන්න, කුඩා model එකක් උත්සාහ කරන්න. / Couldn’t load or run the AI model. Check internet (first load), free storage, or try a smaller model.",1);
+        else status("AI model එක පූරණය කිරීමට හෝ ධාවනයට නොහැකි විය. පළමු වරට අන්තර්ජාලය, ගබඩා ඉඩ බලන්න, කුඩා model එකක් උත්සාහ කරන්න. / Couldn’t load or run the AI model. Check internet (first load), free storage, or try a smaller model.\n\nDetail: "+String((e&&(e.message||e.name))||e).slice(0,300),1);
   }
   busy=false;$("go").disabled=!sample;
 }
