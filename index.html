@@ -6,7 +6,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="theme-color" content="#6d5dfc">
-<title>AppForge Private</title>
+<title>AppForge</title>
 <link rel="manifest" href="manifest.json">
 <link rel="icon" href="icon-192.png">
 <style>
@@ -48,7 +48,7 @@ h3{margin:22px 0 8px;font-size:15px;color:var(--mu)}
   <p class="sub">Describe an app. Get a working one.</p>
   <div class="card">
     <textarea id="p" placeholder="e.g. A habit tracker with streaks, a weekly chart and dark mode"></textarea>
-    <select id="m" style="width:100%;margin-top:8px;padding:10px;border-radius:10px;border:1px solid var(--bd);background:var(--card);color:var(--tx);font:inherit"><option value="Llama-3.2-1B-Instruct-q4f16_1-MLC">Small &amp; fast: Llama 3.2 1B (~0.9GB)</option><option value="gemma-2-2b-it-q4f16_1-MLC">Balanced: Gemma 2 2B (~1.9GB)</option><option value="Llama-3.2-3B-Instruct-q4f16_1-MLC">Best quality: Llama 3.2 3B (~2.3GB)</option></select><input id="u" type="hidden" value="x"><div class="row"><button class="p" id="go">Build my app</button></div>
+    <input id="k" type="password" placeholder="Free Gemini API key (aistudio.google.com/apikey)" style="width:100%;margin-top:8px;padding:10px;border-radius:10px;border:1px solid var(--bd);background:transparent;color:var(--tx);font:inherit"><div class="row"><button class="p" id="go">Build my app</button></div>
   </div>
   <details class="card" style="margin-top:12px"><summary style="cursor:pointer;font-weight:600">⚙️ Rules &amp; limits (සැකසුම්)</summary>
 <p class="sub" style="margin:10px 0 6px">AI instructions (rules):</p>
@@ -75,37 +75,30 @@ h3{margin:22px 0 8px;font-size:15px;color:var(--mu)}
 <script>
 const $=id=>document.getElementById(id);
 const IDEAS=["Pomodoro timer with task list","Expense splitter for friends","Snake game with high scores","Recipe scaler and shopping list","Flashcard quiz maker"];
-const SYS=`You are an autonomous senior engineer, UI/UX designer and product architect. Turn the request into ONE complete, working, mobile-first web app as a single self-contained HTML file. Never ask questions; make sensible decisions. Rules: output ONLY the raw HTML document (doctype first), no markdown fences, no commentary. Inline all CSS and JS; no external scripts, fonts, images or network calls. Include <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">. Modern polished UI with light and dark support via prefers-color-scheme, large touch targets, safe-area padding. Every button, form, tab and navigation item must really work with real logic. If a backend or accounts are implied, simulate them locally in the page. Persist data with localStorage wrapped in try/catch with an in-memory fallback (storage may be blocked). Handle empty states and invalid input. Keep it under 200 lines and as simple as possible.`;
-const DEF=SYS;let cfg={sys:SYS,mt:2500,t:0.3,fx:2};
+const SYS=`You are an autonomous senior engineer, UI/UX designer and product architect. Turn the request into ONE complete, working, mobile-first web app as a single self-contained HTML file. Never ask questions; make sensible decisions. Rules: output ONLY the raw HTML document (doctype first), no markdown fences, no commentary. Inline all CSS and JS; no external scripts, fonts, images or network calls. Include <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">. Modern polished UI with light and dark support via prefers-color-scheme, large touch targets, safe-area padding. Every button, form, tab and navigation item must really work with real logic. If a backend or accounts are implied, simulate them locally in the page. Persist data with localStorage wrapped in try/catch with an in-memory fallback (storage may be blocked). Handle empty states and invalid input. Keep it under about 600 lines.`;
+const DEF=SYS;let cfg={sys:SYS,mt:6000,t:0.3,fx:2};
 try{Object.assign(cfg,JSON.parse(localStorage.getItem("af_s")||"{}"))}catch(e){}
 function loadS(){$("sy").value=cfg.sys;$("mt").value=cfg.mt;$("tp").value=cfg.t;$("fx").value=cfg.fx}
-function saveS(){cfg.sys=$("sy").value||DEF;cfg.mt=+$("mt").value||2500;cfg.t=Math.max(0,Math.min(1,+$("tp").value));cfg.fx=Math.max(0,Math.min(5,+$("fx").value||0));try{localStorage.setItem("af_s",JSON.stringify(cfg))}catch(e){}}
+function saveS(){cfg.sys=$("sy").value||DEF;cfg.mt=+$("mt").value||6000;cfg.t=Math.max(0,Math.min(1,+$("tp").value));cfg.fx=Math.max(0,Math.min(5,+$("fx").value||0));try{localStorage.setItem("af_s",JSON.stringify(cfg))}catch(e){}}
 ["sy","mt","tp","fx"].forEach(id=>$(id).oninput=saveS);
-$("rs").onclick=()=>{cfg={sys:DEF,mt:2500,t:0.3,fx:2};saveS();loadS()};
+$("rs").onclick=()=>{cfg={sys:DEF,mt:6000,t:0.3,fx:2};saveS();loadS()};
 loadS();
 let sample=null,cur="",curName="",busy=false,hist=[];
 try{hist=JSON.parse(localStorage.getItem("af_h")||"[]")}catch(e){}
 IDEAS.forEach(t=>{const b=document.createElement("button");b.className="chip";b.textContent=t;b.onclick=()=>{$("p").value=t};$("chips").appendChild(b)});
-sample=true;
-try{$("u").value=localStorage.getItem("af_u")||$("u").value;(()=>{const v=localStorage.getItem("af_m");if(v)$("m").value=v;if(!$("m").value)$("m").selectedIndex=0})()}catch(e){}
-$("u").oninput=$("m").oninput=()=>{try{localStorage.setItem("af_u",$("u").value.trim());localStorage.setItem("af_m",$("m").value.trim())}catch(e){}};
+sample=true;try{$("k").value=localStorage.getItem("af_k")||""}catch(e){}$("k").oninput=()=>{try{localStorage.setItem("af_k",$("k").value.trim())}catch(e){}};
 function status(t,err,load){$("st").textContent=t;$("st").className=err?"err":"";$("bar").style.display=load?"block":"none"}
 function clean(t){t=(t||"").replace(/^```(?:html)?\s*/i,"").replace(/```\s*$/,"").trim();const i=t.search(/<!doctype|<html/i);return i>0?t.slice(i):t}
 const HOOK=`<script>addEventListener("error",e=>parent.postMessage({afErr:(e.message||"error")+" @line "+e.lineno},"*"));addEventListener("unhandledrejection",e=>parent.postMessage({afErr:"Promise: "+(e.reason&&e.reason.message||e.reason)},"*"))<\/script>`;
 function render(h){const x=/<head[^>]*>/i.test(h)?h.replace(/<head[^>]*>/i,m=>m+HOOK):HOOK+h;$("fr").srcdoc=x;$("pre").textContent=h;$("out").style.display="block"}
 let errs=[];addEventListener("message",e=>{if(e.data&&e.data.afErr&&errs.length<5)errs.push(e.data.afErr)});
-let eng=null,engId="";
 async function gen(msgs,label){
-  const id=$("m").value;
-  if(!navigator.gpu)throw{code:"nogpu"};
-  if(!eng||engId!==id){
-    const w=await import("https://esm.run/@mlc-ai/web-llm");
-    eng=await w.CreateMLCEngine(id,{initProgressCallback:p=>status("Loading AI model: "+Math.round((p.progress||0)*100)+"% (first time only)",0,1)});engId=id;
-  }
-  status(label+"… this can take a few minutes",0,1);
-  const r=await eng.chat.completions.create({messages:msgs,max_tokens:cfg.mt,temperature:cfg.t});
-  const c=r.choices[0];
-  return {html:clean(c.message.content||""),truncated:c.finish_reason==="length"};
+  const key=$("k").value.trim();if(!key)throw{code:"nokey"};
+  const r=await fetch("https://generativelanguage.googleapis.com/v1beta/models/gemini-3.8-flash:generateContent",{method:"POST",headers:{"content-type":"application/json","x-goog-api-key":key},body:JSON.stringify({contents:msgs.map(m=>({role:m.role==="assistant"?"model":"user",parts:[{text:m.content}]})),generationConfig:{maxOutputTokens:cfg.mt,temperature:cfg.t}})});
+  if(!r.ok)throw{code:"http",status:r.status};
+  const j=await r.json();const c=(j.candidates||[])[0]||{};
+  const t=((c.content||{}).parts||[]).map(p=>p.text||"").join("");
+  return {html:clean(t),truncated:c.finishReason==="MAX_TOKENS"};
 }
 async function build(prompt,base){
   if(busy||!sample||!prompt.trim())return;busy=true;$("go").disabled=true;errs=[];
@@ -130,8 +123,10 @@ async function build(prompt,base){
     drawHist();status("Done. Your app is ready ✓");
     $("out").scrollIntoView({behavior:"smooth"});
   }catch(e){
-    if(e&&e.code==="nogpu")status("මෙම බ්‍රවුසරය WebGPU සහාය නොදක්වයි. Chrome යාවත්කාලීන කරන්න. / WebGPU not supported. Update Chrome.",1);
-        else status("AI model එක පූරණය කිරීමට හෝ ධාවනයට නොහැකි විය. පළමු වරට අන්තර්ජාලය, ගබඩා ඉඩ බලන්න, කුඩා model එකක් උත්සාහ කරන්න. / Couldn’t load or run the AI model. Check internet (first load), free storage, or try a smaller model.\n\nDetail: "+String((e&&(e.message||e.name))||e).slice(0,300),1);
+    if(e&&e.code==="nokey")status("ඉහත API key එක ඇතුළත් කරන්න. / Enter your API key above.",1);
+    else if(e&&(e.status===400||e.status===401||e.status===403))status("API key එක වැරදියි. / Invalid or blocked API key.",1);
+    else if(e&&e.status===429)status("Too many requests. Try again shortly.",1);
+    else status("Something went wrong. Check your internet and key, then retry.\n\nDetail: "+String((e&&(e.message||e.name))||(e&&e.status)||e).slice(0,200),1);
   }
   busy=false;$("go").disabled=!sample;
 }
